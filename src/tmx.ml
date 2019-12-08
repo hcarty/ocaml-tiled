@@ -1,4 +1,5 @@
 module Xml = Ezxmlm
+module R = Rresult.R
 
 module Tile = struct
   type t = {
@@ -29,9 +30,10 @@ module Tile = struct
     let index =
       i
       land lnot
-             ( flipped_horizontally_flag
+             (flipped_horizontally_flag
              lor flipped_vertically_flag
-             lor flipped_diagonally_flag )
+             lor flipped_diagonally_flag
+             )
     in
     { index; flip_horizontal; flip_vertical; flip_diagonal }
 
@@ -47,13 +49,13 @@ type t = {
   tiles : Tile.t array array;
   map_size : dims;
   tile_size : dims;
-  tileset_source : string;
+  tileset_source : Fpath.t;
 }
 
-let load (path : string) : t =
-  let raw = Stdio.In_channel.read_all path in
-  let (_, xml) = Xml.from_string raw in
-  let (attrs, map) = Xml.member_with_attr "map" xml in
+let load (path : Fpath.t) : t =
+  let raw = Bos.OS.File.read path |> R.get_ok in
+  let _, xml = Xml.from_string raw in
+  let attrs, map = Xml.member_with_attr "map" xml in
   let map_size : dims =
     let width = Xml.get_attr "width" attrs |> int_of_string in
     let height = Xml.get_attr "height" attrs |> int_of_string in
@@ -65,8 +67,8 @@ let load (path : string) : t =
     { width; height }
   in
   let tileset_source =
-    let (attrs, _tileset) = Xml.member_with_attr "tileset" map in
-    Xml.get_attr "source" attrs
+    let attrs, _tileset = Xml.member_with_attr "tileset" map in
+    Xml.get_attr "source" attrs |> Fpath.v
   in
   let tiles =
     Xml.member "layer" map

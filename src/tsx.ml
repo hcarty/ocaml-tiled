@@ -1,4 +1,5 @@
 module Xml = Ezxmlm
+module R = Rresult.R
 
 type dims = {
   width : int;
@@ -16,10 +17,10 @@ type t = {
 
 let get_int_attr name attrs = Xml.get_attr name attrs |> int_of_string
 
-let load (path : string) : t =
-  let raw = Stdio.In_channel.read_all path in
-  let (_, xml) = Xml.from_string raw in
-  let (attrs, tileset) = Xml.member_with_attr "tileset" xml in
+let load (path : Fpath.t) : t =
+  let raw = Bos.OS.File.read path |> R.get_ok in
+  let _, xml = Xml.from_string raw in
+  let attrs, tileset = Xml.member_with_attr "tileset" xml in
   let tile_size : dims =
     let width = get_int_attr "tilewidth" attrs in
     let height = get_int_attr "tileheight" attrs in
@@ -28,8 +29,8 @@ let load (path : string) : t =
   let spacing = get_int_attr "spacing" attrs in
   let tile_count = get_int_attr "tilecount" attrs in
   let columns = get_int_attr "columns" attrs in
-  let (image_source, image_size) =
-    let (attrs, _image) = Xml.member_with_attr "image" tileset in
+  let image_source, image_size =
+    let attrs, _image = Xml.member_with_attr "image" tileset in
     let image_source = Xml.get_attr "source" attrs in
     let image_size : dims =
       let width = get_int_attr "width" attrs in

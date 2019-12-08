@@ -1,3 +1,3 @@
 (library
  (public_name tiled)
- (libraries ezxmlm fmt stdio))
+ (libraries bos ezxmlm fmt fpath))
