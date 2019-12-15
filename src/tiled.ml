@@ -11,9 +11,10 @@ let load_map map_path : t =
   let tiles_path =
     if Fpath.is_abs tilemap.tileset_source then
       tilemap.tileset_source
-    else
-      let map_dir, _ = Fpath.split_base map_path in
+    else (
+      let (map_dir, _) = Fpath.split_base map_path in
       Fpath.append map_dir tilemap.tileset_source
+    )
   in
   let tileset = Tsx.load tiles_path in
   { tileset; tilemap }
