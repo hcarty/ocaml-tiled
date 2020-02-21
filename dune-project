@@ -1,4 +1,3 @@
-(lang dune 1.11)
+(lang dune 2.0)
 (name tiled)
-(using fmt 1.2)
 (package (name tiled))

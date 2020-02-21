@@ -34,6 +34,7 @@ module Tile = struct
              lor flipped_vertically_flag
              lor flipped_diagonally_flag
              )
+      - 1
     in
     { index; flip_horizontal; flip_vertical; flip_diagonal }
 
