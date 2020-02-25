@@ -1,5 +1,6 @@
 module Xml = Ezxmlm
 module R = Rresult.R
+module String_map = Map.Make (String)
 
 module Tile = struct
   type t = {
@@ -41,13 +42,38 @@ module Tile = struct
   let pp ppf (tile : t) = Fmt.int ppf tile.index
 end
 
+module Layer = struct
+  type t = {
+    id : string;
+    name : string;
+    tiles : Tile.t array array;
+  }
+
+  let of_layer_xml (attrs : Xmlm.attribute list) (layer : Xml.nodes) : t =
+    let tiles =
+      Xml.member "data" layer
+      |> Xml.data_to_string
+      |> String.trim
+      |> String.split_on_char '\n'
+      |> List.map String.trim
+      |> List.map (String.split_on_char ',')
+      |> List.map (List.filter (fun s -> s <> ""))
+      |> List.map (List.map (fun s -> Tile.of_int (int_of_string s)))
+      |> Array.of_list
+      |> Array.map Array.of_list
+    in
+    let id = Xml.get_attr "id" attrs in
+    let name = Xml.get_attr "name" attrs in
+    { id; name; tiles }
+end
+
 type dims = {
   width : int;
   height : int;
 }
 
 type t = {
-  tiles : Tile.t array array;
+  layers : Layer.t String_map.t;
   map_size : dims;
   tile_size : dims;
   tileset_source : Fpath.t;
@@ -71,17 +97,10 @@ let load (path : Fpath.t) : t =
     let (attrs, _tileset) = Xml.member_with_attr "tileset" map in
     Xml.get_attr "source" attrs |> Fpath.v
   in
-  let tiles =
-    Xml.member "layer" map
-    |> Xml.member "data"
-    |> Xml.data_to_string
-    |> String.trim
-    |> String.split_on_char '\n'
-    |> List.map String.trim
-    |> List.map (String.split_on_char ',')
-    |> List.map (List.filter (fun s -> s <> ""))
-    |> List.map (List.map (fun s -> Tile.of_int (int_of_string s)))
-    |> Array.of_list
-    |> Array.map Array.of_list
+  let layers =
+    let layer_xml = Xml.members_with_attr "layer" map |> List.to_seq in
+    Seq.map (fun (attrs, xml) -> Layer.of_layer_xml attrs xml) layer_xml
+    |> Seq.map (fun (layer : Layer.t) -> (layer.id, layer))
+    |> String_map.of_seq
   in
-  { tiles; map_size; tile_size; tileset_source }
+  { layers; map_size; tile_size; tileset_source }
