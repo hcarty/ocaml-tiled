@@ -1,4 +1,4 @@
-(lang dune 1.11)
+(lang dune 2.0)
 
 (name tiled)
 
@@ -17,15 +17,9 @@
  (name tiled)
  (synopsis "Parser for tmx and tsx files as created by Tiled")
  (depends
-  (bos
-   (>= 0.2.0))
-  (ezxmlm
-   (>= 1.1.0))
-  (fmt
-   (>= 0.8.8))
-  (fpath
-   (>= 0.7.2))
-  (ocaml
-   (>= 4.08.0))
-  (dune
-   (>= 1.11))))
+  (bos (>= 0.2.0))
+  (ezxmlm (>= 1.1.0))
+  (fmt (>= 0.8.8))
+  (fpath (>= 0.7.2))
+  (ocaml (>= 4.08.0))
+  (dune (>= 2.0.0))))
