@@ -19,6 +19,9 @@ let load_map map_path : t =
   let tileset = Tsx.load tiles_path in
   { tileset; tilemap }
 
+let is_in_bounds (tiled : t) ~row ~column : bool =
+  Tmx.is_in_bounds tiled.tilemap ~row ~column
+
 let get_tile (tiled : t) ~layer_id ~row ~column : Tmx.Tile.t =
   match Tmx.String_map.find_opt layer_id tiled.tilemap.layers with
   | None ->

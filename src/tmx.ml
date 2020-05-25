@@ -79,6 +79,10 @@ type t = {
   tileset_source : Fpath.t;
 }
 
+let is_in_bounds (tmx : t) ~row ~column =
+    let ({ width; height } : dims) = tmx.map_size in
+    column >= 0 && column < width && row >= 0 && row < height
+
 let load (path : Fpath.t) : t =
   let raw = Bos.OS.File.read path |> R.get_ok in
   let (_, xml) = Xml.from_string raw in
