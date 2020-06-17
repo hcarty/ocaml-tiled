@@ -23,14 +23,14 @@ let is_in_bounds (tiled : t) ~row ~column : bool =
   Tmx.is_in_bounds tiled.tilemap ~row ~column
 
 let get_tile (tiled : t) ~layer_id ~row ~column : Tmx.Tile.t =
-  match Tmx.String_map.find_opt layer_id tiled.tilemap.layers with
+  match Tmx.String_map.find_opt layer_id tiled.tilemap.tile_layers with
   | None ->
     Fmt.invalid_arg "Layer id %s does not exist in %a" layer_id Fpath.pp
       tiled.tilemap.tileset_source
   | Some layer -> layer.tiles.(row).(column)
 
 let get_tile_property (tiled : t) ~layer_id ~row ~column ~key :
-    Tsx.Property.t option =
+    Property.t option =
   let tile = get_tile tiled ~layer_id ~row ~column in
   Tsx.find_property tiled.tileset tile.index key
 
@@ -39,8 +39,8 @@ let get_tile_property_with (tiled : t) ~layer_id ~row ~column ~key ~f : _ option
   let tile = get_tile tiled ~layer_id ~row ~column in
   Tsx.map_property tiled.tileset tile.index key f
 
-let get_tile_property_bool = get_tile_property_with ~f:Tsx.Property.to_bool
-let get_tile_property_string = get_tile_property_with ~f:Tsx.Property.to_string
-let get_tile_property_int = get_tile_property_with ~f:Tsx.Property.to_int
-let get_tile_property_float = get_tile_property_with ~f:Tsx.Property.to_float
-let get_tile_property_color = get_tile_property_with ~f:Tsx.Property.to_color
+let get_tile_property_bool = get_tile_property_with ~f:Property.to_bool
+let get_tile_property_string = get_tile_property_with ~f:Property.to_string
+let get_tile_property_int = get_tile_property_with ~f:Property.to_int
+let get_tile_property_float = get_tile_property_with ~f:Property.to_float
+let get_tile_property_color = get_tile_property_with ~f:Property.to_color
