@@ -1,5 +1,6 @@
 module Tsx = Tsx
 module Tmx = Tmx
+module Property = Property
 
 type t = {
   tileset : Tsx.t;
@@ -23,9 +24,9 @@ let is_in_bounds (tiled : t) ~row ~column : bool =
   Tmx.is_in_bounds tiled.tilemap ~row ~column
 
 let get_tile (tiled : t) ~layer_id ~row ~column : Tmx.Tile.t =
-  match Tmx.String_map.find_opt layer_id tiled.tilemap.tile_layers with
+  match Tmx.Int_map.find_opt layer_id tiled.tilemap.tile_layers with
   | None ->
-    Fmt.invalid_arg "Layer id %s does not exist in %a" layer_id Fpath.pp
+    Fmt.invalid_arg "Layer id %d does not exist in %a" layer_id Fpath.pp
       tiled.tilemap.tileset_source
   | Some layer -> layer.tiles.(row).(column)
 
@@ -44,3 +45,8 @@ let get_tile_property_string = get_tile_property_with ~f:Property.to_string
 let get_tile_property_int = get_tile_property_with ~f:Property.to_int
 let get_tile_property_float = get_tile_property_with ~f:Property.to_float
 let get_tile_property_color = get_tile_property_with ~f:Property.to_color
+
+let get_object_tile_index (map : Tmx.t) (obj : Tmx.Object.t) =
+  let obj_x = obj.x |> Float.round |> Float.to_int in
+  let obj_y = obj.y |> Float.round |> Float.to_int in
+  (obj_x / map.tile_size.width, obj_y / map.tile_size.height)

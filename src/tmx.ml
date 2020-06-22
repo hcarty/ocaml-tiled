@@ -1,4 +1,5 @@
 module R = Rresult.R
+module Int_map = Map.Make (Int)
 module String_map = Map.Make (String)
 
 module Tile = struct
@@ -43,7 +44,7 @@ end
 
 module Tile_layer = struct
   type t = {
-    id : string;
+    id : int;
     name : string;
     tiles : Tile.t array array;
   }
@@ -61,14 +62,14 @@ module Tile_layer = struct
       |> Array.of_list
       |> Array.map Array.of_list
     in
-    let id = Xml.get_attr "id" attrs in
+    let id = Xml.get_int_attr "id" attrs in
     let name = Xml.get_attr "name" attrs in
     { id; name; tiles }
 end
 
 module Object = struct
   type t = {
-    id : string;
+    id : int;
     name : string;
     x : float;
     y : float;
@@ -76,7 +77,7 @@ module Object = struct
   }
 
   let of_xml (attrs : Xmlm.attribute list) (obj : Xml.nodes) : t =
-    let id = Xml.get_attr "id" attrs in
+    let id = Xml.get_int_attr "id" attrs in
     let name = Xml.get_attr "name" attrs in
     let x = Xml.get_float_attr "x" attrs in
     let y = Xml.get_float_attr "y" attrs in
@@ -86,9 +87,9 @@ end
 
 module Object_layer = struct
   type t = {
-    id : string;
+    id : int;
     name : string;
-    objects : Object.t String_map.t;
+    objects : Object.t Int_map.t;
   }
 
   let of_layer_xml (attrs : Xmlm.attribute list) (objects_xml : Xml.nodes) : t =
@@ -98,9 +99,9 @@ module Object_layer = struct
       |> List.to_seq
       |> Seq.map (fun (attrs, xml) -> Object.of_xml attrs xml)
       |> Seq.map (fun (obj : Object.t) -> (obj.id, obj))
-      |> String_map.of_seq
+      |> Int_map.of_seq
     in
-    let id = Xml.get_attr "id" attrs in
+    let id = Xml.get_int_attr "id" attrs in
     let name = Xml.get_attr "name" attrs in
     { id; name; objects }
 end
@@ -111,8 +112,8 @@ type dims = {
 }
 
 type t = {
-  tile_layers : Tile_layer.t String_map.t;
-  object_layers : Object_layer.t String_map.t;
+  tile_layers : Tile_layer.t Int_map.t;
+  object_layers : Object_layer.t Int_map.t;
   map_size : dims;
   tile_size : dims;
   tileset_source : Fpath.t;
@@ -144,12 +145,12 @@ let load (path : Fpath.t) : t =
     let layer_xml = Xml.members_with_attr "layer" map |> List.to_seq in
     Seq.map (fun (attrs, xml) -> Tile_layer.of_layer_xml attrs xml) layer_xml
     |> Seq.map (fun (layer : Tile_layer.t) -> (layer.id, layer))
-    |> String_map.of_seq
+    |> Int_map.of_seq
   in
   let object_layers =
     let layer_xml = Xml.members_with_attr "objectgroup" map |> List.to_seq in
     Seq.map (fun (attrs, xml) -> Object_layer.of_layer_xml attrs xml) layer_xml
     |> Seq.map (fun (layer : Object_layer.t) -> (layer.id, layer))
-    |> String_map.of_seq
+    |> Int_map.of_seq
   in
   { tile_layers; object_layers; map_size; tile_size; tileset_source }
