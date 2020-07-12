@@ -70,6 +70,7 @@ end
 module Object = struct
   type t = {
     id : int;
+    global_tile_id : int option;
     name : string;
     x : float;
     y : float;
@@ -81,8 +82,9 @@ module Object = struct
     let name = Xml.get_attr "name" attrs in
     let x = Xml.get_float_attr "x" attrs in
     let y = Xml.get_float_attr "y" attrs in
+    let global_tile_id = Xml.get_int_attr_opt "gid" attrs |> Option.map pred in
     let properties = Property.of_xml obj in
-    { id; name; x; y; properties }
+    { id; global_tile_id; name; x; y; properties }
 end
 
 module Object_layer = struct
