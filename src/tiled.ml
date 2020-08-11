@@ -30,6 +30,10 @@ let get_tile (tiled : t) ~layer_id ~row ~column : Tmx.Tile.t =
       tiled.tilemap.tileset_source
   | Some layer -> layer.tiles.(row).(column)
 
+let get_tile_properties (tiled : t) ~layer_id ~row ~column =
+  let tile = get_tile tiled ~layer_id ~row ~column in
+  Tsx.find_properties tiled.tileset tile.index
+
 let get_tile_property (tiled : t) ~layer_id ~row ~column ~key :
     Property.t option =
   let tile = get_tile tiled ~layer_id ~row ~column in

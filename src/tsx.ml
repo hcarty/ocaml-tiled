@@ -65,6 +65,11 @@ let get_tile_corner (tiles : t) i =
   let step dim = dim + tiles.spacing in
   (column * step tiles.tile_size.width, row * step tiles.tile_size.height)
 
+let find_properties (tiles : t) index =
+  match Int_map.find_opt index tiles.tile_properties with
+  | None -> String_map.empty
+  | Some properties -> properties
+
 let find_property (tiles : t) index key =
   let ( let* ) = Option.bind in
   let* properties = Int_map.find_opt index tiles.tile_properties in
